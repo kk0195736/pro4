@@ -12,6 +12,7 @@ if __name__ == '__main__':
 read_dataset('./static/normalTrafficTraining.txt')
 '''
 
+import urllib.parse
 
 def parse_dataset(filepath):
     text = ''
@@ -24,11 +25,32 @@ def parse_dataset(filepath):
             text = text + line
         yield text
 
+def extract_http(str):
+    arr = str.split('\n')
+    method, url, _ = arr[0].split(' ')
+    u = urllib.parse.urlparse(url)
 
-N = []
+    payload = ''
+
+    if method == 'GET':
+        payload = u.query
+    elif method == 'POST' or method == 'PUT':
+        for line in reversed(arr):
+            if line == '':
+                continue
+            else:
+                payload = line
+                break
+
+
+    return payload
 
 if __name__ == "__main__":
+    counter = 0
 
-    N.append(parse_dataset("./static/normalTrafficTraining.txt"))
-
-    print(N)
+    for i in parse_dataset('pro4/static/normalTrafficTraining.txt'):
+        if extract_http(i) != '':
+            print(extract_http(i))
+            print("--------------------------------------------------------------------------------")
+            counter += 1
+    print(counter)
